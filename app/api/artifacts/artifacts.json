@@ -1,0 +1,46 @@
+{
+  "artifacts": [
+    {
+      "id": 1,
+      "title": "Ethereal Convergence",
+      "year": 2019,
+      "description": "A mesmerizing exploration of light and shadow, this piece captures the delicate balance between presence and absence. The artist's masterful use of negative space creates a dialogue between the seen and unseen, inviting viewers to contemplate the boundaries of perception and reality.",
+      "imageUrl": "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=1200&h=1600&fit=crop&crop=center"
+    },
+    {
+      "id": 2,
+      "title": "Temporal Fragments",
+      "year": 2021,
+      "description": "This contemporary work examines the fragmented nature of memory and time. Through layered compositions and subtle color variations, the piece invites contemplation on how moments crystallize in our consciousness, creating a visual poetry of remembrance and loss.",
+      "imageUrl": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&h=1600&fit=crop&crop=center"
+    },
+    {
+      "id": 3,
+      "title": "Silent Resonance",
+      "year": 2020,
+      "description": "An intimate study in minimalism, this work speaks through what it doesn't say. The artist's restrained palette and careful composition create a meditative space where silence becomes a powerful form of communication, resonating with the viewer's inner contemplation.",
+      "imageUrl": "https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=1200&h=1600&fit=crop&crop=center"
+    },
+    {
+      "id": 4,
+      "title": "Urban Solitude",
+      "year": 2018,
+      "description": "A poignant reflection on isolation within connectivity, this piece captures the paradox of modern urban existence. The interplay of geometric forms and organic elements suggests the tension between human nature and constructed environments, creating a narrative of contemporary alienation.",
+      "imageUrl": "https://placehold.co/1200x1600"
+    },
+    {
+      "id": 5,
+      "title": "Chromatic Meditation",
+      "year": 2022,
+      "description": "This vibrant exploration of color theory transcends mere aesthetic pleasure to become a spiritual journey. Each hue is carefully chosen to evoke specific emotional responses, creating a synesthetic experience where color becomes sound, movement, and feeling simultaneously.",
+      "imageUrl": "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?w=1200&h=1600&fit=crop&crop=center"
+    },
+    {
+      "id": 6,
+      "title": "Infinite Recursion",
+      "year": 2023,
+      "description": "The latest addition to our collection, this piece explores the concept of infinity through recursive visual patterns. The work challenges our perception of scale and repetition, creating an optical experience that seems to extend beyond the physical boundaries of the canvas itself.",
+      "imageUrl": "https://images.unsplash.com/photo-1482192505345-5655af888cc4?w=1200&h=1600&fit=crop&crop=center"
+    }
+  ]
+}
