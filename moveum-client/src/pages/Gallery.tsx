@@ -3,12 +3,13 @@ import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 import Header from "../components/Header";
-import GalleryCarousel from "../components/GalleryCarousel";
 import ArtifactDetail from "../components/ArtifactDetail";
-import { type Artifact } from "../components/GalleryCarousel";
+import GalleryCarousel, { type Artifact } from "../components/GalleryCarousel";
+import { useMovementConnection } from "../hooks/useMovementConnection";
 
 export default function Gallery() {
 	const navigate = useNavigate();
+	const { isConnected } = useMovementConnection();
 	const [artifacts, setArtifacts] = useState<Artifact[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(
@@ -16,25 +17,25 @@ export default function Gallery() {
 	);
 
 	useEffect(() => {
-		const fetchArtifacts = async () => {
-			try {
-				const response = await fetch("/api/artifacts", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						"X-Payment-Signature": "signature",
-					},
-				});
-				if (response.status === 402) return navigate("/gate");
-				const data = await response.json();
-				setArtifacts(data.artifacts || []);
-			} catch (error) {
-				console.error("Error fetching artifacts:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
-		fetchArtifacts();
+		if (!isConnected) {
+			navigate("/gate");
+			return;
+		}
+	}, [isConnected, navigate]);
+
+	useEffect(() => {
+		setLoading(true);
+
+		const artifactsJSON = localStorage.getItem("artifacts");
+		if (!artifactsJSON) {
+			navigate("/gate");
+			return;
+		}
+		console.log({ artifactsJSON });
+		console.log({ artifacts: JSON.parse(artifactsJSON) });
+		setArtifacts(JSON.parse(artifactsJSON) || []);
+
+		setLoading(false);
 	}, []);
 
 	const handleArtifactClick = (artifact: Artifact) => {

@@ -39,7 +39,7 @@ export default function Home() {
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
 									transition={{ delay: 1 }}
-									onClick={() => navigate("/gate")}
+									onClick={() => navigate("/gallery")}
 									className="px-12 py-4 border border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white transition-all duration-500 rounded-full uppercase text-xs tracking-[0.3em] cursor-pointer"
 								>
 									Explore Gallery

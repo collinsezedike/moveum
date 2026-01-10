@@ -19,7 +19,7 @@ export const CURRENT_NETWORK = "testnet" as keyof typeof MOVEMENT_CONFIGS;
 
 export const aptos = new Aptos(
 	new AptosConfig({
-		network: Network.TESTNET,
+		network: Network.CUSTOM,
 		fullnode: MOVEMENT_CONFIGS[CURRENT_NETWORK].fullnode,
 	})
 );

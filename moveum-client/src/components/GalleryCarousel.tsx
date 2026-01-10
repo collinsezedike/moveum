@@ -46,7 +46,7 @@ const GalleryCarousel: React.FC<GalleryCarouselProps> = ({
 			/>
 
 			<div className="relative flex-grow flex items-center justify-center perspective-[2000px]">
-				{artifacts.map((artifact, index) => {
+				{artifacts?.map((artifact, index) => {
 					let offset = index - currentIndex;
 
 					if (offset > artifacts.length / 2)

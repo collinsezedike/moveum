@@ -1,14 +1,15 @@
-// hooks/useMovementConnection.ts
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { usePrivy, type WalletWithMetadata } from "@privy-io/react-auth";
 
 export function useMovementConnection() {
 	const {
+		connect,
+		wallets,
 		connected: isNativeConnected,
 		account: nativeAccount,
-		connect,
 		disconnect: nativeDisconnect,
-		wallets,
+		wallet,
+		signTransaction,
 	} = useWallet();
 	const { authenticated, user, login, logout } = usePrivy();
 
@@ -30,15 +31,22 @@ export function useMovementConnection() {
 	};
 
 	return {
-		isConnected,
 		address,
-		isNativeConnected,
-		authenticated,
+		isConnected,
+		disconnect,
+
+		// Privy only
 		user,
 		login,
-		connect,
-		disconnect,
-		wallets,
+		authenticated,
 		privyMovementWallet,
+
+		// Native only
+		connect,
+		wallet,
+		wallets,
+		nativeAccount,
+		signTransaction,
+		isNativeConnected,
 	};
 }
