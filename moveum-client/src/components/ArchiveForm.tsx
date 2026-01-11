@@ -41,6 +41,8 @@ const ArchiveForm = () => {
 		e.preventDefault();
 		setIsSubmitting(true);
 
+		const loadingToast = toast.loading("Archiving Artifact...");
+
 		try {
 			const response = await fetch(SERVER_URL, {
 				method: "POST",
@@ -83,13 +85,17 @@ const ArchiveForm = () => {
 				pendingTx = data.pendingTx;
 			}
 
+			toast.loading("Verifying transaction...", { id: loadingToast });
+
 			const executedTransaction =
 				(await movementClient.waitForTransaction({
 					transactionHash: pendingTx?.hash,
 				})) as UserTransactionResponse;
 
 			if (executedTransaction.success) {
-				toast.success("Artifact archived successfully!");
+				toast.success("Artifact archived successfully!", {
+					id: loadingToast,
+				});
 
 				// Reset form
 				setFormData({
@@ -102,10 +108,13 @@ const ArchiveForm = () => {
 					description: "",
 					imageUrl: "",
 				});
-			} else toast.error("Transaction failed");
+			} else toast.error("Transaction failed", { id: loadingToast });
 		} catch (error: any) {
 			console.error(error);
-			toast.error("An error occured", { description: error.message });
+			toast.error("An error occured", {
+				description: error.message,
+				id: loadingToast,
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -199,7 +208,7 @@ const ArchiveForm = () => {
 					}`}
 				>
 					{isSubmitting
-						? "Verifying on Chain..."
+						? "Archiving on Chain..."
 						: "Submit to Museum"}
 				</button>
 			</form>

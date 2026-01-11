@@ -60,7 +60,7 @@ const treasurySignerAddress = await treasurySigner.getAddress();
 
 const movementClient = new Aptos(
 	new AptosConfig({
-		network: Network.TESTNET,
+		network: Network.CUSTOM,
 		fullnode: "https://testnet.movementnetwork.xyz/v1",
 	})
 );
@@ -78,7 +78,7 @@ app.use(express.json());
 
 app.use(
 	x402Paywall(
-		process.env.MOVEUM_TREASURY_ADDRESS as string,
+		TREASURY_ADDRESS,
 		{
 			"GET /api/artifacts": {
 				network: "movement-testnet",
