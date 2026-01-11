@@ -21,6 +21,8 @@ export function useMovementConnection() {
 	const isConnected =
 		isNativeConnected || (authenticated && !!privyMovementWallet);
 
+	const isPrivyConnected = isConnected && !isNativeConnected;
+
 	const address = isNativeConnected
 		? nativeAccount?.address
 		: privyMovementWallet?.address;
@@ -33,6 +35,7 @@ export function useMovementConnection() {
 	return {
 		address,
 		isConnected,
+		isPrivyConnected,
 		disconnect,
 
 		// Privy only

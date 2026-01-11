@@ -76,25 +76,27 @@ const Header = () => {
 						)}
 
 						<div className="hidden md:flex items-center space-x-8">
-							{["Home", "Gallery", "About"].map((item) => {
-								const path =
-									item === "Home"
-										? "/"
-										: `/${item.toLowerCase()}`;
-								return (
-									<Link
-										key={item}
-										to={path}
-										className={`text-[10px] uppercase tracking-[0.2em] font-medium transition-colors hover:text-stone-900 ${
-											pathname === path
-												? "text-stone-900"
-												: "text-stone-400"
-										}`}
-									>
-										{item}
-									</Link>
-								);
-							})}
+							{["Home", "Gallery", "Archive", "About"].map(
+								(item) => {
+									const path =
+										item === "Home"
+											? "/"
+											: `/${item.toLowerCase()}`;
+									return (
+										<Link
+											key={item}
+											to={path}
+											className={`text-[10px] uppercase tracking-[0.2em] font-medium transition-colors hover:text-stone-900 ${
+												pathname === path
+													? "text-stone-900"
+													: "text-stone-400"
+											}`}
+										>
+											{item}
+										</Link>
+									);
+								}
+							)}
 						</div>
 					</div>
 				</div>

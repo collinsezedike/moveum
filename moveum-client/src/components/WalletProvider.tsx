@@ -2,8 +2,7 @@ import { type ReactNode } from "react";
 import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import { AptosConfig, Network } from "@aptos-labs/ts-sdk";
 import { PrivyProvider } from "@privy-io/react-auth";
-
-import { MOVEMENT_CONFIGS, CURRENT_NETWORK } from "../lib/aptos";
+import { CURRENT_NETWORK, MOVEMENT_CONFIGS } from "../lib/movement";
 
 interface AptosProviderProps {
 	children: ReactNode;

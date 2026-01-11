@@ -1,10 +1,71 @@
 import express from "express";
 import cors from "cors";
 import { x402Paywall } from "x402plus";
+import {
+	GasStationClient,
+	KeyClient,
+	ShinamiWalletSigner,
+	WalletClient,
+} from "@shinami/clients/aptos";
+import {
+	Aptos,
+	AccountAddress,
+	AptosConfig,
+	MoveString,
+	Network,
+	SimpleTransaction,
+} from "@aptos-labs/ts-sdk";
 import "dotenv/config";
 
-const app = express();
+interface Artifact {
+	id: string;
+	title: string;
+	year: number;
+	description: string;
+	imageUrl: string;
+}
+
 const PORT = process.env.PORT || 4402;
+const PACKAGE_ID = process.env.MOVEUM_PACKAGE_ID || "";
+const TREASURY_ADDRESS = process.env.MOVEUM_TREASURY_ADDRESS || "";
+const TREASURY_SECRET = process.env.MOVEUM_TREASURY_SECRET || "";
+const GAS_STATION_ACCESS_KEY = process.env.GAS_STATION_ACCESS_KEY || "";
+
+if (!PACKAGE_ID) {
+	throw Error("PACKAGE_ID .env variable not set");
+}
+
+if (!TREASURY_ADDRESS) {
+	throw Error("TREASURY_ADDRESS .env variables not set");
+}
+
+if (!TREASURY_SECRET) {
+	throw Error("TREASURY_SECRET .env variables not set");
+}
+
+if (!GAS_STATION_ACCESS_KEY) {
+	throw Error("GAS_STATION_ACCESS_KEY .env variables not set");
+}
+
+const gasClient = new GasStationClient(GAS_STATION_ACCESS_KEY);
+const walletClient = new WalletClient(GAS_STATION_ACCESS_KEY);
+const keyClient = new KeyClient(GAS_STATION_ACCESS_KEY);
+const treasurySigner = new ShinamiWalletSigner(
+	TREASURY_ADDRESS,
+	walletClient,
+	TREASURY_SECRET,
+	keyClient
+);
+const treasurySignerAddress = await treasurySigner.getAddress();
+
+const movementClient = new Aptos(
+	new AptosConfig({
+		network: Network.TESTNET,
+		fullnode: "https://testnet.movementnetwork.xyz/v1",
+	})
+);
+
+const app = express();
 
 app.use(
 	cors({
@@ -12,6 +73,8 @@ app.use(
 		exposedHeaders: ["X-PAYMENT-RESPONSE"],
 	})
 );
+
+app.use(express.json());
 
 app.use(
 	x402Paywall(
@@ -32,8 +95,89 @@ app.use(
 	)
 );
 
-app.get("/api/artifacts", (_req, res) => {
-	res.json(artifacts);
+app.get("/api/artifacts", async (_req, res) => {
+	try {
+		const ids = await movementClient.view({
+			payload: {
+				function: `${PACKAGE_ID}::gallery::get_all_artifact_ids`,
+				functionArguments: [],
+			},
+		});
+		const artifactIds = ids[0] as string[];
+
+		if (!artifactIds) return res.status(404).json("No artifacts found");
+
+		const artifacts = await Promise.all(
+			artifactIds.map(async (id) => {
+				const details = await movementClient.view({
+					payload: {
+						function: `${PACKAGE_ID}::gallery::get_artifact_details`,
+						functionArguments: [id],
+					},
+				});
+
+				return {
+					id,
+					title: details[0],
+					year: Number(details[1]),
+					description: details[2],
+					imageUrl: details[3],
+					artist: details[4],
+				};
+			})
+		);
+
+		res.json(artifacts);
+	} catch (error) {
+		console.error("Error fetching artifacts:", error);
+		res.status(500).json({ error: "Failed to fetch artifacts" });
+	}
+});
+
+app.post("/api/artifacts", async (req, res) => {
+	try {
+		const {
+			sender,
+			id,
+			title,
+			year,
+			description,
+			imageUrl,
+			senderCanSign,
+		} = req.body;
+		if (
+			!sender?.trim() ||
+			!id?.trim() ||
+			!title?.trim() ||
+			!year ||
+			!description?.trim() ||
+			!imageUrl?.trim()
+		) {
+			return res.status(400).json("Missing required fields");
+		}
+
+		const simpleTx = await buildSimpleMoveCallTransaction(
+			!senderCanSign
+				? treasurySignerAddress
+				: AccountAddress.from(sender),
+			{ id, title, year, description, imageUrl }
+		);
+
+		if (!senderCanSign) {
+			const pendingTx = await treasurySigner.executeGaslessTransaction(
+				simpleTx
+			);
+			return res.json({ pendingTx });
+		}
+		const sponsorAuth = await gasClient.sponsorTransaction(simpleTx);
+		res.json({
+			sponsorAuthenticator: sponsorAuth.bcsToHex().toString(),
+			simpleTx: simpleTx.bcsToHex().toString(),
+		});
+	} catch (error) {
+		console.error("Error archiving artifact:", error);
+		res.status(500).json({ error: "Failed to archive artifact" });
+	}
 });
 
 app.get("/health", (_req, res) => {
@@ -41,62 +185,28 @@ app.get("/health", (_req, res) => {
 });
 
 app.listen(PORT, () => {
-	console.log(`x402 server running at http://localhost:${PORT}`);
-	console.log(`Pay-to address: ${process.env.MOVEUM_TREASURY_ADDRESS}`);
+	console.log(`Server running at http://localhost:${PORT}`);
 });
 
-const artifacts = [
-	{
-		id: 1,
-		title: "Ethereal Convergence",
-		year: 2019,
-		description:
-			"A mesmerizing exploration of light and shadow, this piece captures the delicate balance between presence and absence. The artist's masterful use of negative space creates a dialogue between the seen and unseen, inviting viewers to contemplate the boundaries of perception and reality.",
-		imageUrl:
-			"https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=1200&h=1600&fit=crop&crop=center",
-	},
-	{
-		id: 2,
-		title: "Temporal Fragments",
-		year: 2021,
-		description:
-			"This contemporary work examines the fragmented nature of memory and time. Through layered compositions and subtle color variations, the piece invites contemplation on how moments crystallize in our consciousness, creating a visual poetry of remembrance and loss.",
-		imageUrl:
-			"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&h=1600&fit=crop&crop=center",
-	},
-	{
-		id: 3,
-		title: "Silent Resonance",
-		year: 2020,
-		description:
-			"An intimate study in minimalism, this work speaks through what it doesn't say. The artist's restrained palette and careful composition create a meditative space where silence becomes a powerful form of communication, resonating with the viewer's inner contemplation.",
-		imageUrl:
-			"https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=1200&h=1600&fit=crop&crop=center",
-	},
-	{
-		id: 4,
-		title: "Urban Solitude",
-		year: 2018,
-		description:
-			"A poignant reflection on isolation within connectivity, this piece captures the paradox of modern urban existence. The interplay of geometric forms and organic elements suggests the tension between human nature and constructed environments, creating a narrative of contemporary alienation.",
-		imageUrl: "https://placehold.co/1200x1600",
-	},
-	{
-		id: 5,
-		title: "Chromatic Meditation",
-		year: 2022,
-		description:
-			"This vibrant exploration of color theory transcends mere aesthetic pleasure to become a spiritual journey. Each hue is carefully chosen to evoke specific emotional responses, creating a synesthetic experience where color becomes sound, movement, and feeling simultaneously.",
-		imageUrl:
-			"https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?w=1200&h=1600&fit=crop&crop=center",
-	},
-	{
-		id: 6,
-		title: "Infinite Recursion",
-		year: 2023,
-		description:
-			"The latest addition to our collection, this piece explores the concept of infinity through recursive visual patterns. The work challenges our perception of scale and repetition, creating an optical experience that seems to extend beyond the physical boundaries of the canvas itself.",
-		imageUrl:
-			"https://images.unsplash.com/photo-1482192505345-5655af888cc4?w=1200&h=1600&fit=crop&crop=center",
-	},
-];
+async function buildSimpleMoveCallTransaction(
+	sender: AccountAddress,
+	artifact: Artifact
+): Promise<SimpleTransaction> {
+	return await movementClient.transaction.build.simple({
+		sender,
+		withFeePayer: true,
+		data: {
+			function: `${AccountAddress.from(
+				PACKAGE_ID
+			)}::gallery::upload_artifact`,
+			functionArguments: [
+				new MoveString(artifact.id),
+				new MoveString(artifact.title),
+				artifact.year,
+				new MoveString(artifact.description),
+				new MoveString(artifact.imageUrl),
+			],
+		},
+		options: { expireTimestamp: Math.floor(Date.now() / 1000) + 5 * 60 },
+	});
+}

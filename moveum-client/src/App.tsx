@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
 import About from "./pages/About";
 import Gate from "./pages/Gate";
+import Archive from "./pages/Archive";
 
 const App: React.FC = () => {
 	return (
@@ -31,6 +32,7 @@ const App: React.FC = () => {
 						<Route path="/gallery" element={<Gallery />} />
 						<Route path="/about" element={<About />} />
 						<Route path="/gate" element={<Gate />} />
+						<Route path="/archive" element={<Archive />} />
 					</Routes>
 				</main>
 			</BrowserRouter>

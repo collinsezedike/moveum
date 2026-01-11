@@ -1,14 +1,11 @@
 import {
-	Aptos,
-	AptosConfig,
-	Network,
 	AccountAuthenticatorEd25519,
 	Ed25519PublicKey,
 	Ed25519Signature,
 } from "@aptos-labs/ts-sdk";
 import { buildAptosLikePaymentHeader } from "x402plus";
 
-import { MOVEMENT_CONFIGS, CURRENT_NETWORK } from "../lib/aptos";
+import { movementClient } from "../lib/movement";
 import { useMovementConnection } from "./useMovementConnection";
 
 export function useX402Payment() {
@@ -19,14 +16,7 @@ export function useX402Payment() {
 		if (!isConnected || !nativeAccount)
 			throw new Error("Wallet not connected");
 
-		const aptos = new Aptos(
-			new AptosConfig({
-				network: Network.CUSTOM,
-				fullnode: MOVEMENT_CONFIGS[CURRENT_NETWORK].fullnode,
-			})
-		);
-
-		const tx = await aptos.transaction.build.simple({
+		const tx = await movementClient.transaction.build.simple({
 			sender: nativeAccount.address,
 			data: {
 				function: "0x1::aptos_account::transfer",
