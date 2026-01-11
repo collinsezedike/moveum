@@ -58,10 +58,16 @@ export default function About() {
 									}}
 									className="text-2xl md:text-3xl font-light text-stone-400 mb-24 leading-snug italic"
 								>
-									Our digital museum represents a new paradigm
-									in art curation—where technology serves to
-									enhance the contemplative nature of the
-									image.
+									"...the past is a foreign country; they do
+									things differently there. But in the digital
+									age, the past is also a fragile country. We
+									must build the vessels that allow our
+									culture to travel forward, or it will be
+									erased by the very speed of our progress..."
+									<span className="block text-sm uppercase text-stone-700 tracking-widest mt-6 font-sans not-italic">
+										— L.P. Hartley & Stewart Brand (The Long
+										Now Foundation)
+									</span>
 								</motion.p>
 							</div>
 						</div>
