@@ -11,23 +11,8 @@ export async function createMovementWallet(
 			(account: any) =>
 				account.type === "wallet" && account.chainType === "aptos"
 		);
-
-		if (existingWallet) {
-			console.log(
-				"Movement wallet already exists:",
-				existingWallet.address
-			);
-			return existingWallet;
-		}
-
-		console.log("Creating new Movement wallet for user...");
-		const wallet = await createWallet({ chainType: "aptos" });
-
-		console.log(
-			"Movement wallet created successfully:",
-			(wallet as any).address
-		);
-		return wallet;
+		if (!existingWallet) return await createWallet({ chainType: "aptos" });
+		else return existingWallet;
 	} catch (error) {
 		console.error("Error creating Movement wallet:", error);
 		throw error;

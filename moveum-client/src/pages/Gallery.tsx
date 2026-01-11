@@ -31,8 +31,6 @@ export default function Gallery() {
 			navigate("/gate");
 			return;
 		}
-		console.log({ artifactsJSON });
-		console.log({ artifacts: JSON.parse(artifactsJSON) });
 		setArtifacts(JSON.parse(artifactsJSON) || []);
 
 		setLoading(false);
